@@ -1,0 +1,57 @@
+This okvis_ros package is modified by Jianzhu Huai from that provided on github by Stefan Leutenegger.
+
+#1. The following are major changes
+1, Regarding the okvis_ros/okvis folder which contain the source for okvis algorithm, the only change is in ImuError.cpp signified by "#if 0" directives. This corrected the way how the covariance and Jacobians for states are computed. They are validated by the testIMUOdometry.cpp in msckf2/test folder.
+2, Major changes occur with okvis_ros which is the wrapper for okvis.
+okvis_ros originally only supports reading data from rosbag files or VI-sensor. Now it supports reading images from a video and inertial data from a *.csv file which is currently the default setting.
+
+#2. Building the modified okvis_ros
+
+Although some changes are made to the CMakeLists.txt and some other files, the installation instructions found at https://github.com/ethz-asl/okvis_ros apply to this slightly changed version of okvis_ros. Note because our applications used crowdsourced visual inertial data, installing visensor driver and PCL library are NOT necessary.
+To build okvis_ros, first install the following dependencies,
+
+    (1)ROS (currently supported: hydro, indigo and jade). Read the instructions in http://wiki.ros.org/indigo/Installation/Ubuntu.
+    (2)google-glog + gflags,
+        sudo apt-get install libgoogle-glog-dev
+
+    (3)The following should get installed through ROS anyway:
+
+    	sudo apt-get install libatlas-base-dev libeigen3-dev libsuitesparse-dev 
+	sudo apt-get install libopencv-dev libboost-dev libboost-filesystem-dev
+
+then (4)clone the okvis_ros repository into your catkin workspace. If you already have a local copy of these source files, e.g., an modified version of okvis_ros, simply copy it to your catkin workspace. 
+
+/* Unnecessary if you are working on an modified version
+Otherwise, you need to clone okvis_ros from github into your catkin workspace.
+	git clone --recursive git@github.com:ethz-asl/okvis_ros.git
+or
+	git clone --recursive https://github.com/ethz-asl/okvis_ros.git
+
+In cloning okvis_ros from github, I encountered the following problem.
+	"Please make sure you have the correct access rights
+	and the repository exists.
+	Clone of 'git@github.com:ethz-asl/okvis.git' into submodule path 'okvis' failed"
+Therefore, after okvis_ros is cloned, okvis needs to be cloned via another command
+	cd okvis_ros
+	git clone https://github.com/ethz-asl/okvis.git
+*///Unnecessary
+
+To avoid a potential "Permission denied" error on okvis_ros/cfg/Camera.cfg, you may need to add execute permission to Camera.cfg file via the following: open a terminal, navigate to catkin_ws/src/okvis_ros/cfg/, then execute 
+	chmond +x Camera.cfg
+
+
+Finally, (5)build the project from the catkin workspace root, i.e., navigate to /home/USERNAME/catkin_ws, in the terminal, type
+	source devel/setup.bash
+	catkin_make -DCMAKE_BUILD_TYPE=Release --pkg okvis_ros
+
+#3. Run okvis_ros
+
+(1) start roscore in a terminal via: roscore
+(2) create a configuration file following examples in okvis_ros/config, e.g., config_parkinglot_jisun_s6.yaml.
+(3) provide the configuration file as the command line argument to okvis_node, then it should run OK. This can be done either though Qt creator or in a terminal with command
+	rosrun okvis_ros okvis_node /path/to/config.yaml
+
+
+
+
+

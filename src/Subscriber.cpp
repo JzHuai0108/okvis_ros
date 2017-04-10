@@ -55,7 +55,7 @@ Subscriber::~Subscriber()
 
 Subscriber::Subscriber(ros::NodeHandle& nh, okvis::VioInterface* vioInterfacePtr,
                        const okvis::VioParametersReader& param_reader)
-    : vioInterface_(vioInterfacePtr)
+    : vioInterface_(vioInterfacePtr), mNumProcessedMsg(0)
 {
   param_reader.getParameters(vioParameters_);
   imgTransport_ = 0;
@@ -120,10 +120,11 @@ void Subscriber::imageCallback(const sensor_msgs::ImageConstPtr& msg,/*
   okvis::Time t(msg->header.stamp.sec, msg->header.stamp.nsec);
   t -= okvis::Duration(vioParameters_.sensors_information.imageDelay);
 
-  if (!vioInterface_->addImage(t, cameraIndex, filtered))
+  if (!vioInterface_->addImage(t, cameraIndex, filtered, NULL, mNumProcessedMsg))
     LOG(WARNING) << "Frame delayed at time "<<t;
 
   // TODO: pass the keypoints...
+  ++mNumProcessedMsg;
 }
 
 void Subscriber::imuCallback(const sensor_msgs::ImuConstPtr& msg)
@@ -196,7 +197,7 @@ void Subscriber::startSensors(const std::vector<unsigned int>& camRate,
 
 #ifdef HAVE_LIBVISENSOR
 void Subscriber::directImuCallback(
-    boost::shared_ptr<visensor::ViImuMsg> imu_ptr, visensor::ViErrorCode error)
+    std::shared_ptr<visensor::ViImuMsg> imu_ptr, visensor::ViErrorCode error)
 {
   if (error == visensor::ViErrorCodes::MEASUREMENT_DROPPED) {
     LOG(WARNING) << "dropped imu measurement on sensor "
