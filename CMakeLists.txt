@@ -1,10 +1,15 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(okvis_ros)
 
+SET(CATKIN_DEVEL_PREFIX $ENV{HOME}/catkin_ws/devel) # this ensures binaries are put into correct location of catkin_ws
+
 find_package(catkin REQUIRED  
-  pcl_conversions
-  pcl_ros
+#  pcl_conversions
+#  pcl_ros
   roscpp
+  rosbag
+  tf
+  std_msgs
   sensor_msgs
   image_transport
   cv_bridge
@@ -18,15 +23,17 @@ generate_dynamic_reconfigure_options(cfg/Camera.cfg)
 
 catkin_package(
     DEPENDS
-    CATKIN_DEPENDS
+    CATKIN_DEPENDS rosbag tf roscpp cv_bridge message_runtime std_msgs sensor_msgs
     INCLUDE_DIRS include
     LIBRARIES ${PROJECT_NAME}
 )
 
+
+set(CMAKE_BUILD_TYPE_SAVED "${CMAKE_BUILD_TYPE}")
 # we really want to use Release here
 set(CMAKE_BUILD_TYPE Release)
 
-message(STATUS "Building with ${CMAKE_BUILD_TYPE}")
+message(STATUS "Building okvis with ${CMAKE_BUILD_TYPE}")
 
 # The configure step fails at catkin_package() if this directory
 # doesn't exist yet. Create it at configure time!
@@ -36,9 +43,10 @@ file(MAKE_DIRECTORY ${CATKIN_DEVEL_PREFIX}/include)
 set(BUILD_SHARED_LIBS OFF)
 add_subdirectory(okvis)
 
-
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+find_package( Eigen REQUIRED )
+include_directories(${EIGEN_INCLUDE_DIR})
 # libvisensor
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/okvis/cmake")
 find_package(VISensor)
 
 if(VISENSORDRIVER_FOUND)
@@ -49,16 +57,22 @@ else()
   message(WARNING "libvisensor not found")
 endif()
 
+find_package(vio_common REQUIRED)
+
 include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
   ${CMAKE_BINARY_DIR}/include
+  ${vio_common_INCLUDE_DIR}
 )
-
+message("okvis_ros cmake install prefix " ${CMAKE_INSTALL_PREFIX})
+set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE_SAVED}")
+message("Building okvis_ros " ${CMAKE_BUILD_TYPE})
 # compile the ROS dependent stuff into a library
 add_definitions(-fPIC -march=native -Wextra -Winit-self -Woverloaded-virtual
                 -Wnon-virtual-dtor -Wsign-promo -Wno-long-long -std=c++0x)
 add_library(${PROJECT_NAME} STATIC src/Subscriber.cpp
+                               src/Player.cpp                            
                                src/Publisher.cpp
                                src/RosParametersReader.cpp
                                include/okvis/Subscriber.hpp
@@ -83,6 +97,7 @@ target_link_libraries(${PROJECT_NAME}
   okvis_frontend 
   okvis_multisensor_processing
   pthread
+  ${vio_common_LIBRARY}
 )
 
 if(VISENSORDRIVER_FOUND)

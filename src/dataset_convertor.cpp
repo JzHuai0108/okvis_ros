@@ -32,7 +32,7 @@
 
 /**
  * @file dataset_convertor.cpp
- * @brief Source file for the VioParametersReader class.
+ * @brief convert ROS bag file to csv files in a folder.
  * @author Stefan Leutenegger
  * @author Andrea Nicastro
  */

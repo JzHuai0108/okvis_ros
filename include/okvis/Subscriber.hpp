@@ -44,7 +44,7 @@
 #include <deque>
 #include <memory>
 
-#include <boost/shared_ptr.hpp>
+//#include <boost/shared_ptr.hpp>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
 #include <ros/ros.h>
@@ -129,7 +129,7 @@ class Subscriber
   void startSensors(const std::vector<unsigned int>& camRate,
                     const unsigned int imuRate);
   /// @brief The IMU callback.
-  void directImuCallback(boost::shared_ptr<visensor::ViImuMsg> imu_ptr,
+  void directImuCallback(std::shared_ptr<visensor::ViImuMsg> imu_ptr,
                          visensor::ViErrorCode error);
   /// @brief The image callback.
   void directFrameCallback(visensor::ViFrame::Ptr frame_ptr,
@@ -160,6 +160,7 @@ class Subscriber
 
   okvis::VioInterface* vioInterface_;   ///< The VioInterface. (E.g. ThreadedKFVio)
   okvis::VioParameters vioParameters_;  ///< The parameters and settings.
+  size_t mNumProcessedMsg;
 };
 }
 
