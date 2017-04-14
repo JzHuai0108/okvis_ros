@@ -1,9 +1,9 @@
 %YAML:1.0
 cameras:
      - {T_SC:
-        [ 0, -1, 0, 0,
-          -1, 0, 0, 0,
-           0, 0, -1,0,
+        [  0.000341425919084, -0.999979770238, 0.00635157806524, 0,
+           -0.999250868111, -0.000586960849829, -0.0386957110793, 0,
+           0.0386986564019, -0.00633360817684, -0.999230853907, 0,
            0.0, 0.0, 0.0, 1.0],
         down_scale: 2,
         image_dimension: [1920, 1080],
@@ -91,9 +91,12 @@ input_data:
 #    finishIndex: 28900
 #    startIndex: 28700 #second session
 #    finishIndex: 300000
-    startIndex: 20000
-    finishIndex: 300000
 
+    startIndex: 18800 # extend first session at head
+    finishIndex: 28900 
+
+#    startIndex: 28400 #extend second session at head
+#    finishIndex: 300000
 
 
 keyframeInsertionOverlapThreshold: 0.7
