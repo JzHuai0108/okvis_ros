@@ -63,8 +63,9 @@ void Player::Run()
         }
         okvis::Time t(frameTime);
         t -= okvis::Duration(vioParameters_.sensors_information.imageDelay);
-        if (!vioInterface_->addImage(t, 0, filtered, NULL, mFG.getCurrentId()))
-            LOG(WARNING) << "Frame delayed at time "<<t;
+        int currentId = mFG.getCurrentId();
+        if (!vioInterface_->addImage(t, 0, filtered, NULL, currentId))
+            LOG(WARNING) << "Frame delayed at time "<<t<<" iwth current id "<< currentId;
 
         // add corresponding imu data
         if(frameCounter ==0){
