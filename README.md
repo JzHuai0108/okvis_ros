@@ -1,3 +1,7 @@
+# OBSOLETE
+The main changes to okvis_ros has been merged to the msckf repo.
+This fork of okvis ros is no longer maintained.
+
 README                        {#mainpage}
 ======
 
